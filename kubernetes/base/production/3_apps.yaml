@@ -12,7 +12,6 @@ spec:
     name: flux-system
   path: ./kubernetes/apps/production
   prune: true
-  validation: client
   decryption:
     provider: sops
     secretRef:
