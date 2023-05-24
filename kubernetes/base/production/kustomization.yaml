@@ -5,6 +5,7 @@ resources:
 - ../all/sources
 - intel-gpu-plugin
 - 0_settings.yaml
-- 1_crds.yaml
-- 2_core.yaml
-- 3_apps.yaml
+- 1_infra.yaml
+- 2_crds.yaml
+- 3_core.yaml
+- 4_apps.yaml

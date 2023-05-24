@@ -1,0 +1,29 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crds
+  namespace: flux-system
+spec:
+  interval: 10m5s
+  dependsOn:
+    - name: infra
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kubernetes/crds/production
+  prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-gpg
+  #postBuild:
+  #  substitute: {}
+  #  substituteFrom:
+  #  - kind: ConfigMap
+  #    name: global-settings
+  #  - kind: Secret
+  #    name: global-secrets
+  #  - kind: ConfigMap
+  #    name: cluster-settings
+  #  - kind: Secret
+  #    name: cluster-secrets
