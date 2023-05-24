@@ -1,0 +1,23 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud-traefik-ingress
+  namespace: nextcloud
+spec:
+  entryPoints:
+  - websecure
+  - web
+  routes:
+  - kind: Rule
+    match: Host(`nextcloud.justsem.org`)
+    middlewares:
+    - name: nc-chain
+      namespace: nextcloud
+    services:
+    - kind: Service
+      name: nextcloud
+      namespace: nextcloud
+      passHostHeader: true
+      port: 8080
+  tls:
+    secretName: nextcloud-cert

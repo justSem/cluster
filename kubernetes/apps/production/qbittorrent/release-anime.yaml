@@ -1,0 +1,82 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: qbittorrent-anime
+  namespace: vpn
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  values:
+    hostname: qbitanime
+    image:
+      repository: ghcr.io/onedr0p/qbittorrent
+      tag: v4.5.2@sha256:a4a66d66ed11c5e3570078daf4e4adeb8a7f88b000a64aa760d46ef12fa7a4c6
+    imagePullSecrets:
+      - name: justsem-ghcr
+    env:
+      TZ: "Europe/Amsterdam"
+      QBITTORRENT__PORT: &port 8080
+      QBITTORRENT__BT_PORT: &port-bt 60830
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+      bittorrent:
+        enabled: true
+        type: ClusterIP
+        ports:
+          bittorrent:
+            enabled: true
+            port: *port-bt
+            protocol: TCP
+            targetPort: *port-bt
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: openebs-hostpath
+      downloads:
+        enabled: true
+        type: hostPath
+        mountPath: /downloads/qbit-anime
+        hostPath: /opt/storage/qbit-anime
+      blocklistss:
+        enabled: true
+        type: hostPath
+        mountPath: /blocklists
+        hostPath: /opt/storage/blocklists
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+    #      fsGroup: 568
+
+    resources:
+      requests:
+        memory: 250Mi
+        cpu: 500m
+      limits:
+        memory: 6000Mi
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik
+          traefik.ingress.kubernetes.io/router.middlewares: vpn-qbit-anime-auth@kubernetescrd
+        hosts:
+        - host: &host "qbit-anime.justsem.org"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - secretName: qbit-cert
+          hosts:
+          - *host

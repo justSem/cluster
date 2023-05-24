@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: base-cert
+  namespace: budibase
+spec:
+  commonName: base.justsem.org
+  secretName: base-cert
+  dnsNames:
+  - base.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

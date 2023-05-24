@@ -1,0 +1,16 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: error-cert
+  namespace: traefik
+  labels:
+    "use-http01-solver": "true"
+spec:
+  commonName: error.justsem.org
+  secretName: error-cert
+  dnsNames:
+    - error.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

@@ -1,0 +1,63 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: authentik
+spec:
+  headers:
+    stsSeconds: 63072000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    customFrameOptionsValue: "SAMEORIGIN"
+    contentTypeNosniff: true
+    browserXssFilter: true
+    contentSecurityPolicy: "default-src 'self'; script-src 'unsafe-inline' 'self'; style-src 'unsafe-inline' 'self'; object-src 'none'; base-uri 'self'; connect-src 'self'; font-src 'self'; frame-src 'self'; img-src 'self' static.void.community static.justsem.org static.rebelsec.org; manifest-src 'self'; media-src 'self'; worker-src 'none';"
+    permissionsPolicy: "interest-cohort=()"
+    referrerPolicy: "no-referrer-when-downgrade"
+    customResponseHeaders:
+      server: "Traefik"
+      X-Content-Options: "nosniff"
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers-arrstack
+  namespace: authentik
+spec:
+  headers:
+    stsSeconds: 63072000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    customFrameOptionsValue: "SAMEORIGIN"
+    contentTypeNosniff: true
+    browserXssFilter: true
+#    contentSecurityPolicy: "default-src 'self'; script-src 'unsafe-inline' 'self'; style-src 'unsafe-inline' 'self'; object-src 'none'; base-uri 'self'; connect-src 'self'; font-src 'self'; frame-src 'self'; img-src 'self' static.justsem.org static.rebelsec.org; manifest-src 'self'; media-src 'self'; worker-src 'none';"
+    permissionsPolicy: "interest-cohort=()"
+    referrerPolicy: "no-referrer-when-downgrade"
+    customResponseHeaders:
+      server: "Traefik"
+      X-Content-Options: "nosniff"
+---
+#apiVersion: traefik.containo.us/v1alpha1
+#kind: IngressRoute
+#metadata:
+#  name: authentik-ingressroute-traefik
+#  namespace: authentik
+#spec:
+#  entryPoints:
+#    - websecure
+#    - web
+#  routes:
+#    - match: Host(`id.justsem.org`) || Host(`sso.justsem.org`)
+#      kind: Rule
+#      middlewares:
+#        - name: security-headers
+#          namespace: authentik
+#      services:
+#        - kind: Service
+#          name: authentik
+#          namespace: authentik
+#          passHostHeader: true
+#          port: 80
+#  tls:
+#    secretName: authentik-cert

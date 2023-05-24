@@ -1,0 +1,36 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: vpn-namespace
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    # Only allow ingress from K8S
+    - ipBlock:
+        cidr: 10.42.0.0/16
+    - ipBlock:
+        cidr: 10.43.0.0/16
+    - ipBlock:
+        cidr: fd42::/56
+    - ipBlock:
+        cidr: fd43::/112
+  egress:
+  - to:
+      - namespaceSelector: {}
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+  - to:
+    # Only allow egress to K8S
+    - ipBlock:
+        cidr: 10.42.0.0/8
+    - ipBlock:
+        cidr: 10.43.0.0/16
+    - ipBlock:
+        cidr: fd42::/56
+    - ipBlock:
+        cidr: fd43::/112
+  policyTypes:
+    - Ingress
+    - Egress

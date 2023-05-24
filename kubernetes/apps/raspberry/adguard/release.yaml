@@ -1,0 +1,97 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: adguard
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  values:
+#    runtimeClassName: gvisor
+    externalTrafficPolicy: local
+    image:
+      repository: adguard/adguardhome
+      tag: latest
+    persistence:
+      work:
+        enabled: true
+        type: pvc
+        accessMode: ReadWriteOnce
+        storageClass: local-path
+        mountPath: "/opt/adguardhome/work"
+        size: 4Gi
+      conf:
+        enabled: true
+        type: pvc
+        accessMode: ReadWriteOnce
+        storageClass: local-path
+        mountPath: "/opt/adguardhome/conf"
+        size: 1Gi
+      adguard-cert:
+        enabled: true
+        type: secret
+        mountPath: "/opt/tls"
+        name: 'adguard-cert'
+    probes:
+      startup:
+        enabled: false
+        type: TCP
+        port: 3000
+      readiness:
+        enabled: false
+        type: TCP
+        port: 80
+      liveness:
+        enabled: false
+        type: TCP
+        port: 80
+    service:
+      main:
+        type: LoadBalancer
+        enabled: true
+        ports:
+          dns:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+          bootp:
+            port: 67
+            protocol: UDP
+          dhcp:
+            port: 68
+            protocol: UDP
+          http:
+            port: 80
+            protocol: TCP
+          https:
+            port: 443
+            protocol: TCP
+          quic:
+            port: 443
+            protocol: UDP
+          node:
+            port: 3000
+            protocol: TCP
+          dns-tls:
+            port: 853
+            protocol: TCP
+          dns-quic:
+            port: 853
+            protocol: UDP
+          dnscrypt:
+            port: 5443
+            protocol: TCP
+          dnscrypt-udp:
+            port: 5443
+            protocol: UDP
+

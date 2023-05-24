@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nextcloud-cert
+  namespace: nextcloud
+  labels:
+    "use-http01-solver": "true"
+spec:
+  commonName: nextcloud.justsem.org
+  secretName: nextcloud-cert
+  dnsNames:
+    - nextcloud.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

@@ -1,0 +1,77 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: authentik
+  namespace: authentik
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://charts.goauthentik.io
+      chart: authentik
+      version: 2023.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: authentik
+        namespace: flux-system
+      interval: 5m
+  values:
+    replicas: 1
+    image:
+      repository: ghcr.io/goauthentik/server
+      tag: 2023.5.1
+      pullPolicy: IfNotPresent
+    volumeMounts:
+      - name: logos
+        mountPath: /web/dist/assets/logos
+    volumes:
+      - name: logos
+        persistentVolumeClaim:
+          claimName: authentik-logos
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: traefik
+        traefik.ingress.kubernetes.io/router.middlewares: authentik-security-headers@kubernetescrd
+      tls:
+        - secretName: authentik-cert
+          hosts:
+          - id.justsem.org
+          - sso.justsem.org
+      hosts:
+        - host: id.justsem.org
+          paths:
+            - path: "/"
+              type: Prefix
+        - host: sso.justsem.org
+          paths:
+            - path: "/"
+              type: Prefix
+
+    authentik:
+      email:
+        host: "smtp.sendgrid.net"
+        port: 587
+        username: "apikey"
+        from: "auth@sys.rebelsec.org"
+    geoip:
+      enabled: true
+    postgresql:
+      enabled: true
+      persistence:
+        enabled: true
+        type: pvc
+        storageClass: openebs-hostpath
+    redis:
+      enabled: true
+      architecture: standalone
+      persistence:
+        enabled: true
+        storageClass: local-path
+        accessMode: ReadWriteOnce
+ 
+  valuesFrom:
+  - kind: Secret
+    name: authentik
+    valuesKey: values.yaml
+    optional: false

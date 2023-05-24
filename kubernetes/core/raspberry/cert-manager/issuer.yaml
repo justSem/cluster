@@ -1,0 +1,50 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+    name: le-hetzner
+spec:
+    acme:
+        email: cert@justsem.org
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+            name: le-hetzner-prod
+        solvers:
+            # An empty 'selector' means that this solver matches all domains
+            - selector: {}
+              dns01:
+                webhook:
+                    groupName: justsem.org
+                    solverName: hetzner
+                    config:
+                        APIKey: ENC[AES256_GCM,data:1I7c4HLYZaoN2ol27Sl/uUk6LdYuAsdUqNvyIgMfrvw=,iv:PckwUc/6PWWde6UwyVtusQgLuLn/P2GKlP3P+xUho4w=,tag:gv+MoNLcUKj1ppYIaqoXcQ==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-05-15T14:09:09Z"
+    mac: ENC[AES256_GCM,data:BvT9onqEXYG8IIGjJxy8FcdvNWzmmixYPnd0gX1Gf6H+c/mImtssxD0qBLijThhQ4RH5JKhbfnaP8PRERVhsWcSREpDXFNGDG5A2JbXuNmq3Yc59Gs4OaQFHH/gsDqNozJc6QaqQYPieJfWyly0UlD1X4N/nHE4B+h21kgSmKlc=,iv:TlNXQWNnR3ymj6v3EANn81ESfJLN82j5Cl8mWHDlK/o=,tag:7njRhZJHnBNUhxjkM2oBiw==,type:str]
+    pgp:
+        - created_at: "2023-05-15T14:09:09Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwdUmVO8UyRmAQ/+JyVDUECcR2CwP7eUbcPEVB8fHfvPCNEniz4wE7VbFyuv
+            rxD95yOZ2svaywb10hevA0jWwPGrOxLGeLFtPu94io2TqRk4n2EGozSgviFr+LLr
+            TIRzDrCy5XbEDlKlNHaZJVMP4CgWOwAs8T+c/UhlbST0bJEB8MKEDXUDeDuDjHbS
+            NWnYAT9YMQ8GMyRP/Jx1Rz9r8yYJqJHdNKbkMqdcb+YApXqYxRMXDfjJBmtXd0n6
+            YeiWTwNrqzg2KSBOtirpcANZa48ViEc5i+5Ek0Zadopy4VwecNuak/MVhCqrMglQ
+            IbMX3ZJW88PB9UIEBwVNW6bPvFnJplr5PqZco1+G9scVJ2hnQVR+iG8GorXY+7Om
+            ZK+8nS58GYuYiwFhSBVWFyqn+TXMuaTZDbEsWIXWyyew2UU3ONk9liILxleo+Y1/
+            WtVEjhcQ2Y3adpMOo3ISwluvFwcDFnVl5eshnZZYUq1bkMSiqyFxl9LQp/3UVg4l
+            l1Hnh2U0bWAvXRS9DJ4Ep4lupK5SGOGMLItCDLYUbVwsXh1FZTkTM8GinXotdHj7
+            Ycpw7+4qZJeaWihh9kiIbEP24V0rZlh6UHs4h0f54mofgYkSMnuRqdOr+lPq48pw
+            3Gr2BbDQp3hfR/D0Yvbm+ZVIeTsx9fOHHg1+LfaXmlq9hSdjDJf5mR7QGK4hbA/S
+            XgG0DoRyao1VHdgjERVD8bHTn6E3rt8Q+PSiBxcUFJnGLzqFQiiaaUHrblg6uhRh
+            VbLY83DG8nKaf3SNajozmUdjzWcdE/24TVXJFJjUV59QE+82D6fTVz0WeEJHGDU=
+            =Wcjp
+            -----END PGP MESSAGE-----
+          fp: B194147D46676F527F2C1A33AC4C1FF17C9B79D9
+    encrypted_regex: ^(APIKey|stringData)$
+    version: 3.7.3

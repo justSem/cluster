@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ak-outpost-vpn-cm
+  namespace: vpn
+spec:
+  commonName: justsem.org
+  secretName: ak-outpost-vpn-cm
+  dnsNames:
+    - justsem.org
+    - "*.justsem.org"
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: actions-runner-controller
+  namespace: arc
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: actions-runner-controller
+      version: 0.23.3
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: arc-helm-charts
+        namespace: flux-system
+  values:
+    authSecret:
+      enabled: true
+      name: "github-app"
+      create: false
+    certManagerEnabled: true
+    scope:
+      singleNamespac: true
+      watchNamespace: "arc"
+    serviceAccount:
+      create: true

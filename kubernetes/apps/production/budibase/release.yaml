@@ -1,0 +1,42 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: budibase
+  namespace: budibase
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: budibase
+      version: 2.6.20
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: budibase
+        namespace: flux-system
+  values:
+    globals:
+      appVersion: "latest"
+      budibaseEnv: PRODUCTION
+      selfHosted: "1"
+      multiTenancy: "0"
+      createSecrets: true
+    ingress:
+      annotations:
+        kubernetes.io/ingress.class: nginx
+      nginx: false
+      tls:
+        - secretName: base-cert
+          hosts:
+            - base.justsem.org
+      hosts:
+      - host: base.justsem.org
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-service
+                port:
+                  number: 10000
+  

@@ -1,0 +1,39 @@
+apiVersion: v1
+data:
+    .dockerconfigjson: ENC[AES256_GCM,data:yLxo4HgOul5/4cZ1nuSAx3CqtdcHF1VURr0S9CNciCAdcAMmdpjx2ZBJTCWXhCNqJCGZXFWvCRl73WwCOetf12rZAxCuFvEwiGiwhLhfeMzv2t2DrqOPFsv7qnbWR8I11EWS+6IR7rPl+KhY38/jyyrTjE5cipCaXg9Y1LVaXbouHxhgO49siXDd4TPsdzFeZWHtJGQ42BkKEMEmujBBnQvxUXfECY3j1KQhIjXEPMJW+g1CJGPvjCV2zHhaDLnYe3Rb81euceOjSezA2RvU56NYl/mQk1qO6BNF08eS9ZkGjjLloQpzIg==,iv:/WS5Z52J9ngBrc3OgCRaLYf0TL7Y4BpfwoxA3E97Flw=,tag:wcds7R6dJtAtSYalAObOXA==,type:str]
+kind: Secret
+metadata:
+    name: justsem-ghcr
+    namespace: cert-manager
+type: kubernetes.io/dockerconfigjson
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-05-15T13:59:14Z"
+    mac: ENC[AES256_GCM,data:UwdcYypQBvFt0Rnls1rU+OhIjasI56Dw4bSnIcKpjdv7gtwMlEAwWx3ubeJMMFNdDAQQ3ZStoK3zwGh/YWN7y+Kc98JyPEyfLIoLTplXTRN8YFxAStl0Uj5VSsSVM/qpncDFYys1qEi0Ah3BW0JBLsIay9eLma2D/CVdHF2VDSw=,iv:38GftmjO4hLkBplQ3N4sFBhE92NwIyTIffjQ5XRmwOg=,tag:2Ri2pYJf3L7kEOL6fT1J2Q==,type:str]
+    pgp:
+        - created_at: "2023-05-15T13:59:14Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwdUmVO8UyRmAQ/8DT4uNrY33jEqQ82jLY11r2h0pWaw0tB4vc0nO4/5/CU5
+            +TZQ4RkUdZnpBZFv2I/vGFe+Jv/s49FO10i1gBmcgS4AMKQ3BT9lO3+MYyUr7eAb
+            2sPMqifsT7NnmQdRZNWi5m36yBuHVHalon1rd4fsP5GCmt+5xa8Eqg4Bg0AOOH3w
+            ZE4EwdeYM6GcVqiaST31Q9IGPjDXuXDOib+etPdd13BvoovDjnyXOIyOH71nIhbw
+            AjGOKiHNK3O0kjf8sO9fvOLeTgL4iAiMP8nXkAKHgvHGlKv1LFXwMyY/Rb0ceEwq
+            1KXkf/T1TXfxX2rxsqC7ym4PQ49U1EOzT5vnICEre+fUPRH2lxbKaaQSg9mvutBT
+            VJkzJ1DgRuTf4Ad+YWcsx115M3LqiM4cRfdgw1OF4KZGzg4D5knP9DFlQh94p9mY
+            THmmt8sNPIl0JhAQ6SGwMf7auJsjhTLMnAcuk8w+sL0ZNkCUP4xxaS3AnDtYPw7n
+            TX7NVHZSEJKAw2D+Ejp9NCHRaOBrPTtLpjGLrJ2QioLVdAN8pZcpPBHGJu8lf7qF
+            ZwfkuOJRLVsoFECSwUPxbHXpGYVNcbqkX6wGzI0GKsxPt3GF+vQVlfGHzpxyVCSD
+            U71m3BCy+FwZ4FMKGjhpPdcCOFbJCxrUl6fi3Is8B7pOGrkNdbxnvOZK0T9lipPS
+            XgGVOz/rGdewa1A6I86roDKo1z6et/HKk4S/0TwNPyJ13dAsozaCxDMw31DKrxrh
+            C6cj90ifwrr6JfUL2EzlOVfqyFFlRmVMsxGdZfMrynI7XsPVsfadrVA1QXFsfAU=
+            =01oG
+            -----END PGP MESSAGE-----
+          fp: B194147D46676F527F2C1A33AC4C1FF17C9B79D9
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3

@@ -1,0 +1,17 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: theme-park
+spec:
+  headers:
+    browserXssFilter: true
+    customFrameOptionsValue: SAMEORIGIN
+    customResponseHeaders:
+      X-Content-Options: nosniff
+      server: Traefik
+    permissionsPolicy: interest-cohort=()
+    referrerPolicy: no-referrer-when-downgrade
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 63072000

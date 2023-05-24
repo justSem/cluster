@@ -1,0 +1,16 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ombi-cert
+  namespace: ombi
+  labels:
+    "use-http01-solver": "true"
+spec:
+  commonName: ombi.justsem.org
+  secretName: ombi-cert
+  dnsNames:
+    - ombi.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

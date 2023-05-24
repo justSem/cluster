@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: jellyfin
+spec:
+  headers:
+    browserXssFilter: true
+#    contentSecurityPolicy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self'; font-src 'self'; frame-src 'self'; img-src 'self'; manifest-src 'self'; media-src 'self'; worker-src 'self' 'unsafe-inline';
+    contentTypeNosniff: true
+    customFrameOptionsValue: SAMEORIGIN
+    customResponseHeaders:
+      X-Content-Options: nosniff
+      server: Traefik
+    permissionsPolicy: interest-cohort=()
+    referrerPolicy: no-referrer-when-downgrade
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 63072000

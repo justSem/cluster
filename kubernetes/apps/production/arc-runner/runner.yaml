@@ -1,0 +1,37 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerSet
+metadata:
+  name: justsem-containers-runner
+  namespace: arc
+spec:
+  replicas: 1
+  dockerdWithinRunnerContainer: false
+  repository: justSem/containers
+  selector:
+    matchLabels:
+      app: containers
+  serviceName: containers
+  template:
+    metadata:
+      labels:
+        app: containers
+    spec:
+      containers:
+      - name: runner
+        image: summerwind/actions-runner:latest
+#        env: []
+        resources:
+          limits:
+            cpu: "4.0"
+            memory: "12Gi"
+          requests:
+            cpu: "1.0"
+            memory: "4Gi"
+#      - name: docker
+#        resources:
+#          limits:
+#            cpu: "4.0"
+###            memory: "12Gi"
+#          requests:
+#            cpu: "1.0"
+#            memory: "4Gi"

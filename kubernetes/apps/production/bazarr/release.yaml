@@ -1,0 +1,64 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: bazarr
+  namespace: vpn
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  values:
+    image:
+      repository: ghcr.io/justsem/bazarr
+      tag: v1.1.4@sha256:ac9f56bfbf20bc5a19cb3b440e72dd1defd542d98380add7763837176276783c
+    imagePullSecrets:
+      - name: justsem-ghcr
+    env:
+      TZ: "Europe/Amsterdam"
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: openebs-hostpath
+      storage:
+        enabled: true
+        type: hostPath
+        mountPath: /media
+        hostPath: /opt/storage/streaming/jellyfin
+      coldstorage:
+        enabled: true
+        type: hostPath
+        mountPath: /old-media
+        hostPath: /opt/storage/cold-storage
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+    service:
+      main:
+        ports:
+          http:
+            port: 6767
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik
+          traefik.ingress.kubernetes.io/router.middlewares: vpn-bazarr-auth@kubernetescrd,vpn-security-headers@kubernetescrd
+        hosts:
+        - host: &host "bazarr.justsem.org"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - secretName: bazarr-cert
+          hosts:
+          - *host

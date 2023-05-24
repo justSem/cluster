@@ -1,0 +1,66 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: nextcloud
+spec:
+  headers:
+    browserXssFilter: true
+#    contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self'; font-src data: 'self'; frame-src 'self'; img-src 'self' data: id.justsem.org  usercontent.apps.nextcloud.com; manifest-src 'self'; media-src 'self'; worker-src 'self' 'unsafe-inline';"
+    contentTypeNosniff: true
+    customFrameOptionsValue: SAMEORIGIN
+    customResponseHeaders:
+      X-Content-Options: nosniff
+      server: Traefik
+    permissionsPolicy: interest-cohort=()
+    referrerPolicy: no-referrer-when-downgrade
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 63072000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nc-redirect
+  namespace: nextcloud
+spec:
+  redirectRegex:
+    regex: "https://(.*)/.well-known/(card|cal)dav"
+    replacement: "https://${1}/remote.php/dav/"
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nc-well-known
+  namespace: nextcloud
+spec:
+  redirectRegex:
+    regex: "https?://([^/]*)(/.well-known[^#]*)"
+    replacement: "https://$${1}/index.php$${2}"
+    permanent: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nc-https
+  namespace: nextcloud
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+   name: nc-chain
+   namespace: nextcloud
+spec:
+  chain:
+    middlewares:
+      - name: nc-redirect
+      - name: nc-well-known
+      - name: security-headers
+      - name: nc-https

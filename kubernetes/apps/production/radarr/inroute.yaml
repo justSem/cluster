@@ -1,0 +1,55 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: radarr-auth
+  namespace: vpn
+spec:
+  forwardAuth:
+    address: https://radarr.justsem.org/outpost.goauthentik.io/auth/traefik
+    authResponseHeaders:
+    - X-authentik-username
+    - X-authentik-groups
+    - X-authentik-email
+    - X-authentik-name
+    - X-authentik-uid
+    - X-authentik-jwt
+    - X-authentik-meta-jwks
+    - X-authentik-meta-outpost
+    - X-authentik-meta-provider
+    - X-authentik-meta-app
+    - X-authentik-meta-version
+    trustForwardHeader: true
+---
+#apiVersion: traefik.containo.us/v1alpha1
+#kind: IngressRoute
+#metadata:
+#  name: radarr-traefik-ingress
+#  namespace: vpn
+#spec:
+#  entryPoints:
+#    - websecure
+#    - web
+#  routes:
+#    - match: Host(`radarr.justsem.org`)
+#      kind: Rule
+#      priority: 10
+#      middlewares:
+#        - name: radarr-auth
+#          namespace: vpn
+#        - name: security-headers
+#          namespace: vpn#
+#      services:
+#        - kind: Service
+#          name: radarr
+#          passHostHeader: true
+#          namespace: vpn
+#          port: 7878
+#    - match: Host(`radarr.justsem.org`) && PathPrefix(`/outpost.goauthentik.io/`)
+#      kind: Rule
+#      priority: 15
+#      services:
+#        - kind: Service
+#          name: ak-outpost-vpn
+#          port: 9000
+#  tls:
+#    secretName: radarr-cert

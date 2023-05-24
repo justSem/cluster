@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: collabora-cert
+  namespace: nextcloud
+  labels:
+    "use-http01-solver": "true"
+spec:
+  commonName: collabora.justsem.org
+  secretName: collabora-cert
+  dnsNames:
+    - collabora.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

@@ -1,0 +1,70 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: dhcpd
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  values:
+#    runtimeClassName: gvisor
+    hostNetwork: true
+    imagePullSecrets:
+    - name: justsem-ghcr
+    image:
+      repository: ghcr.io/justsem/dhcpd
+      tag: latest
+#    persistence:
+#      work:
+#        enabled: 
+#        type: pvc
+#        accessMode: ReadWriteOnce
+#        storageClass: local-path
+#        mountPath: "/etc/dhcpd/"
+#        size: 1Gi
+    probes:
+      startup:
+        enabled: false
+        type: TCP
+        port: 3000
+      readiness:
+        enabled: false
+        type: TCP
+        port: 80
+      liveness:
+        enabled: false
+        type: TCP
+        port: 80
+    service:
+      main:
+        type: LoadBalancer
+        enabled: false
+        ports:
+          bootp:
+            port: 67
+            protocol: UDP
+          dhcp:
+            port: 68
+            protocol: UDP
+
+  postRenderers:
+    - kustomize:
+        patchesStrategicMerge:
+          - kind: Deployment
+            apiVersion: apps/v1
+            metadata:
+              name: dhcpd
+              namespace: default
+            spec:
+              template:
+                spec:
+                  imagePullSecrets:
+                  - name: justsem-ghcr

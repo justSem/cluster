@@ -1,0 +1,98 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: traefik
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://charts.jetstack.io/
+      chart: traefik
+      version: 23.0.1
+      sourceRef:
+        kind: HelmRepository
+        name: traefik-helm-charts
+        namespace: flux-system
+      interval: 5m
+  install:
+    remediation:
+      retries: 3
+  values:
+    experimental:
+      plugins:
+        enabled: true
+        theme-park:
+          moduleName: "github.com/packruler/traefik-themepark"
+          version: "v1.3.0"
+    deployment:
+      replicas: 3
+    providers:
+      kubernetesGateway:
+        enabled: true
+      kubernetesCRD:
+        enabled: true
+        allowCrossNamespace: false
+        allowExternalNameServices: false
+        allowEmptyServices: false
+      kubernetesIngress:
+        enabled: true
+        allowExternalNameServices: false
+        allowEmptyServices: false
+        ingressClass: traefik
+    logs:
+      general:
+        level: ERROR
+      access:
+        enabled: true
+        fields:
+          general:
+            defaultMode: keep
+    globalArguments:
+      - "--global.checknewversion"
+    additionalArguments:
+     - "--entryPoints.web.proxyProtocol.insecure=true"
+     - "--entryPoints.websecure.proxyProtocol.insecure=true"
+     - "--entryPoints.web.forwardedHeaders.insecure=true"
+     - "--entryPoints.websecure.forwardedHeaders.insecure=true"
+    ports:
+      web:
+        redirectTo: websecure
+      znc:
+        port: 6667
+        expose: true
+        exposedPort: 6667
+        protocol: TCP
+      factoriotcp:
+        port: 27015
+        expose: true
+        exposedPort: 27015
+        protocol: TCP
+      factorioudp:
+        port: 34197
+        expose: true
+        exposedPort: 34197
+        protocol: UDP
+    tlsOptions:
+      default:
+        sniStrict: true
+        cipherSuites:
+          - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+          - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+          - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+          - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+          - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        minVersion: VersionTLS12
+    service:
+      enabled: true
+      type: LoadBalancer
+      ipFamilyPolicy: PreferDualStack
+      ipFamilies:
+        - IPv4
+        - IPv6
+      spec:
+        externalTrafficPolicy: Local
+
+
+

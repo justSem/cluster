@@ -1,0 +1,23 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: collabora-traefik-ingress
+  namespace: nextcloud
+spec:
+  entryPoints:
+  - websecure
+  - web
+  routes:
+  - kind: Rule
+    match: Host(`collabora.justsem.org`)
+    middlewares:
+    - name: nc-chain
+      namespace: nextcloud
+    services:
+    - kind: Service
+      name: nextcloud-collabora
+      namespace: nextcloud
+      passHostHeader: true
+      port: 9980
+  tls:
+    secretName: collabora-cert

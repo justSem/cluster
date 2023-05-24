@@ -1,0 +1,36 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hetzner-webhook-cert-manager
+  namespace: cert-manager
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cert-manager-webhook-hetzner
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: mecodia
+        namespace: flux-system
+  dependsOn:
+    - name: cert-manager
+  values:
+    fullnameOverride: "cert-manager-webhook-hetzner"
+    image:
+      repository: ghcr.io/justsem/cert-manager-webhook-hetzner
+      tag: vcert-manager-webhook-hetzner-0.3.1
+    groupName: justsem.org
+  postRenderers:
+    - kustomize:
+        patchesStrategicMerge:
+          - kind: Deployment
+            apiVersion: apps/v1
+            metadata:
+              name: cert-manager-webhook-hetzner
+              namespace: cert-manager
+            spec:
+              template:
+                spec:
+                  imagePullSecrets:
+                  - name: justsem-ghcr

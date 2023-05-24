@@ -1,0 +1,9 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: mecodia
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://mecodia.github.io/cert-manager-webhook-hetzner/
+  timeout: 15m

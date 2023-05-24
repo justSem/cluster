@@ -1,0 +1,39 @@
+apiVersion: v1
+data:
+    token: ENC[AES256_GCM,data:SCRHs0bglP3maluCWweQGFDL8pz6/O8be31lCJoFbbNJuBOUZWi9iDQpk8b6isMlNvcrKkBikDM=,iv:F84GECOYLpr0f7Sbl8v3qBmQWS2L4fgNYoiZ2qOpTAM=,tag:8teh/vrrU/yUmIiIPlDP7w==,type:str]
+kind: Secret
+metadata:
+    name: webhook-token
+    namespace: flux-system
+type: Opaque
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-01-10T15:01:59Z"
+    mac: ENC[AES256_GCM,data:RbtMJ6bDHU/B9/vEhmEdKszaWQiYDvJfDR/InE4yX6bzsbSVG9PuKgWZ8/ayRkQyxhat3FElkKFZpqrBlO2gZ6DihXCx4p2d+gPsmmuDFPfYKo/ggfAgWBgU8zqdelt6cVISUNMhEHsA6i7DHBRZ83XJPH/Gx0mHCnlY7KHmHyM=,iv:eOjTJJr/7HN7iPymgg7RPjDeYG6t+pf/zWvDqPqAZ2M=,tag:rzqsUPUB5vl4MwxQ9iMBMA==,type:str]
+    pgp:
+        - created_at: "2023-01-10T15:01:59Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwdUmVO8UyRmARAApntcRTL9aETmhpUPCGmc4xvpFpsy9lnGIzKh6Z9lgB4M
+            wI8xZz/yEojjpnAKqtA5xcCCPBBpTy+dpwWGSU18UEsi63SOiWkjKBHqQkiwXVjX
+            BtU0C6MhMCR4G9vKA3ZpMRrQjxXl6O+Wf1+4n+zcKu634NI0jnIRpKekhqbk/yf+
+            GYIJNIZpI4qMffFZ7VzImpT/9moQlarfmec5cO4KvYAJs0dT+VvTohpFKV1lh3VK
+            0OUE0SifmEQQ0A72OJvrNQwHovouXdZ/iMp0lN0UNhiDfUvP4I4yzJSkJuB701K7
+            4OLHq06Zk7WIxI1RDxxUF3lQaD0aOglLqs39YAkAeDjpBh1g6l07Ra9OLjoUJtn5
+            nDUSuoIG75B1xPzmvsIYDA0K3HfN7iUjQTBLnnJFJjHOTlY2tgAEqggxpXZddnzM
+            eNE1jumz3RKreadKXvThdUBvk3xHAoqZAsvIpvSuz8x32ZTKm+fSD8/O4jmG5skM
+            AQ7k2ZJTtg+C1vr1zW1X2qvYzN1hT2tMRu6TRtgZR3gYW8L7TcmRjjnvQHce5ojT
+            f6KWfBtGTWfmaMNE1czaoVY2j973D30Y+rssbnUS9AdYr4+onWd+zqGldA1zv8Tz
+            +XCOMV4+3HwtKUFDdR84cdWQ/UYTEDY35J+eslaU2QbGooNCBU+dJsyxgQWfxJrS
+            XgGMaPzkHwrA1f6EAT3uPkPXVKOpHBuhBFIMqHBjZM++mpUNmABLk76solokJLk8
+            3VNsp//1NY7UQ7w8r/k1cuPHsBJ0+nh4DFyMwshj2Vf0krJsztIXI3KIm/nwHPU=
+            =bWgk
+            -----END PGP MESSAGE-----
+          fp: B194147D46676F527F2C1A33AC4C1FF17C9B79D9
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3

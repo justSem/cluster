@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      securityContext:
+        supplementalGroups: [44, 109]
+      containers:
+      - env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: docker.io/jellyfin/jellyfin:10.8.10
+        imagePullPolicy: IfNotPresent
+        name: jellyfin
+        resources:
+          limits:
+            gpu.intel.com/i915: 1
+        ports:
+        - containerPort: 8096
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /data/tv
+          name: tv
+          readOnly: False
+        - mountPath: /data/movies
+          name: movies
+        - mountPath: /data/intros
+          name: intros
+        - mountPath: /data/music
+          name: music
+        - mountPath: /data/books
+          name: books
+          readOnly: False
+        - mountPath: /config
+          name: jellyfin-config
+      restartPolicy: Always
+      volumes:
+      - name: tv
+        hostPath:
+          path: "/opt/storage/streaming/jellyfin/TV Shows"
+          type: Directory
+      - name: movies
+        hostPath:
+          path: "/opt/storage/streaming/jellyfin/Movies"
+          type: Directory
+      - name: music
+        hostPath:
+          path: "/opt/storage/streaming/jellyfin/Music"
+          type: Directory
+      - name: books
+        hostPath:
+          path: "/opt/storage/streaming/jellyfin/Books"
+          type: Directory
+      - name: intros
+        hostPath:
+          path: "/opt/storage/streaming/jellyfin/Intros"
+          type: Directory
+      - name: jellyfin-config
+        persistentVolumeClaim:
+          claimName: jellyfin-config

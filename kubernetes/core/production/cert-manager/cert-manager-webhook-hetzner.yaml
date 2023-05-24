@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hetzner-webhook-cert-manager
+  namespace: cert-manager
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cert-manager-webhook-hetzner
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: vadikim-charts
+        namespace: flux-system
+  dependsOn:
+    - name: cert-manager
+  values:
+    groupName: acme.justsem.org

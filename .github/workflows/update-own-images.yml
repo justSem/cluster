@@ -1,0 +1,70 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Update container image tags
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  schedule:
+  - cron: "0 12/4 * * *"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions: write-all
+  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  update-image-tags:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+      - name: Download yq
+        run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64 && \
+          sudo chmod +x /usr/local/bin/yq && \
+          sudo apt-get -y -q install moreutils jo jq
+
+      - name: Fetch apps containing my images
+        run: |
+          find ./apps -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | while read app; do
+            if test -f "./apps/${app}/release.yaml"; then
+              version=$(yq .spec.values.image.repository ./apps/${app}/release.yaml)
+              if [[ "$version" =~ .*"ghcr.io/justsem/".* ]]; then
+                echo "${app} has justSem image ${version}"
+                conver=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/user/packages/container/$app/versions | jq .[0].metadata.container.tags[0] | tr -d '"')
+                contag=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/user/packages/container/$app/versions | jq .[0].name | tr -d '"')
+                export appver="$conver@$contag"
+                echo "$app has container version $appver"
+                if [[ "$appver" != "$(yq .spec.values.image.tag ./apps/${app}/release.yaml)" ]]; then
+                  yq -i e '.spec.values.image.tag = env(appver)' apps/${app}/release.yaml
+                fi
+              fi
+              if [[ "$version" =~ .*"ghcr.io/onedr0p/".* ]]; then
+                echo "${app} has onedr0p image ${version}"
+                conver=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/users/onedr0p/packages/container/$app/versions | jq .[0].metadata.container.tags[0] | tr -d '"')
+                contag=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/users/onedr0p/packages/container/$app/versions | jq .[0].name | tr -d '"')
+                export appver="$conver@$contag"
+                echo "$app has container version $appver"
+                if [[ "$appver" != "$(yq .spec.values.image.tag ./apps/${app}/release.yaml)" ]]; then
+                  yq -i e '.spec.values.image.tag = env(appver)' apps/${app}/release.yaml
+                fi
+              fi
+            fi
+          done
+      - name: Commit versions to cluster
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git config user.name "$GITHUB_ACTOR"
+            git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+            git add -A
+            git commit -sam "⚙️ update apps to new container versions" || exit 0
+            git push
+          fi

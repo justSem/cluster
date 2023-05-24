@@ -1,0 +1,36 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: conduit-traefik-ingress
+  namespace: matrix
+spec:
+  entryPoints:
+    - websecure
+    - web
+  routes:
+    - match: (Host(`justsem.org`) || Host(`conduit.justsem.org`)) && PathPrefix(`/_matrix/`)
+      kind: Rule
+      priority: 10
+#      middlewares:
+#        - name: security-headers
+#          namespace: matrix
+      services:
+        - kind: Service
+          name: conduit
+          passHostHeader: true
+          namespace: matrix
+          port: 6167
+    - match: (Host(`justsem.org`) || Host(`conduit.justsem.org`)) && PathPrefix(`/.well-known/matrix`)
+      kind: Rule
+      priority: 10
+#      middlewares:
+#        - name: security-headers
+#          namespace: matrix
+      services:
+        - kind: Service
+          name: conduit
+          passHostHeader: true
+          namespace: matrix
+          port: 80
+  tls:
+    secretName: conduit-cert

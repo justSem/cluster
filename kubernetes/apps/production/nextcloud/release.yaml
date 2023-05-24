@@ -1,0 +1,134 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://nextcloud.github.io/helm/
+      chart: nextcloud
+      version: 3.5.12
+      sourceRef:
+        kind: HelmRepository
+        name: nextcloud
+        namespace: flux-system
+      interval: 5m
+#  dependsOn:
+#    - name: nextcloud-db
+  # See https://github.com/nextcloud/helm/blob/master/charts/nextcloud/values.yaml
+  values:
+    runtimeClassName: gvisor
+    image:
+      repository: docker.io/library/nextcloud
+      tag: 26.0.1-apache
+    env:
+      PHP_MEMORY_LIMIT: 8G
+    ingress:
+      enabled: true
+      path: /
+      pathType: Prefix
+      annotations:
+        kubernetes.io/ingress.class: traefik
+        traefik.ingress.kubernetes.io/router.middlewares: nextcloud-nc-chain@kubernetescrd
+        cert-manager.io/cluster-issuer: le-hetzner
+      tls:
+        - secretName: nextcloud-cert
+          hosts:
+            - nextcloud.justsem.org
+
+    nextcloud:
+      extraEnv:
+        - name: PHP_MEMORY_LIMIT 
+          value: '8G'
+      host: nextcloud.justsem.org
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-creds
+        usernameKey: username
+        passwordKey: password
+        tokenKey: serverinfo_token
+        smtpUsernameKey: smtp_username
+        smtpPasswordKey: smtp_password
+      mail:
+        enabled: true
+        fromAddress: 'nextcloud@servers.justsem.org'
+        domain: 'servers.justsem.org'
+        smtp:
+          host: smtp.sendgrid.net
+          secure: ssl
+          port: 587
+          authtype: LOGIN
+      phpConfigs:
+        www.conf: |-
+          [www]
+          user = www-data
+          group = www-data
+          listen = 127.0.0.1:9000
+          pm = dynamic
+          pm.max_children = 234
+          pm.start_servers = 58
+          pm.min_spare_servers = 58
+          pm.max_spare_servers = 175
+          pm.max_requests = 150
+          php_admin_value[memory_limit] = 8G
+      configs:
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies'    => ['10.0.0.0/8', 'fd42::/48', 'fd43::/112'],
+            'overwritehost'      => 'nextcloud.justsem.org',
+            'overwriteprotocol'  => 'https'
+          );
+    internalDatabase:
+      enabled: false
+    persistence:
+      enabled: true
+      storageClass: "openebs-hostpath-hdd"
+      accessMode: ReadWriteOnce
+      size: 500Gi
+    cronjob:
+      enabled: true
+      image:
+        repository: curlimages/curl
+        tag: latest
+      schedule: "*/5 * * * *"
+      curlInsecure: true
+      failedJobsHistoryLimit: 5
+      successfulJobsHistoryLimit: 2
+    service:
+      type: ClusterIP
+      port: 8080
+    mariadb:
+      enabled: true
+      primary:
+        persistence:
+          storageClass: "openebs-hostpath"
+          enabled: true
+          size: 16Gi
+          accessMode: ReadWriteOnce
+    redis:
+      enabled: true
+      auth:
+        enabled: true
+      master:
+        persistence:
+          storageClass: "openebs-hostpath"
+      replica:
+        persistence:
+          storageClass: "openebs-hostpath"
+    rbac:
+      enabled: true
+      serviceaccount:
+        create: true
+        name: nextcloud-sa
+  valuesFrom:
+  - kind: Secret
+    name: nextcloud-secrets
+    valuesKey: values.yaml
+    optional: false
+#  - kind: Secret
+#    name: nextcloud-oidc
+#    valuesKey: values.yaml
+#    optional: false

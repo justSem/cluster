@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hetzner-webhook-cert-manager
+  namespace: cert-manager
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cert-manager-webhook-hetzner
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: mecodia
+        namespace: flux-system
+  dependsOn:
+    - name: cert-manager
+  values:
+    image:
+      repository: mecodia/cert-manager-webhook-hetzner
+      tag: 0.3.0
+    groupName: dns.hetzner.cloud

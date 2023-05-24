@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hoas-cert
+  namespace: default
+spec:
+  commonName: hoas.internal.justsem.org
+  secretName: hoas-cert
+  dnsNames:
+    - hoas.internal.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

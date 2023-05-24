@@ -1,0 +1,21 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: flux-webhook
+  namespace: flux-system
+spec:
+  entryPoints:
+    - websecure
+    - web
+  routes:
+    - match: Host(`flux.d002.servers.justsem.org`)
+      kind: Rule
+      priority: 10
+      services:
+        - kind: Service
+          name: webhook-receiver
+          passHostHeader: true
+          namespace: flux-system
+          port: 80
+  tls:
+    secretName: flux-receiver-cert

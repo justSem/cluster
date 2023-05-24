@@ -1,0 +1,55 @@
+#apiVersion: traefik.containo.us/v1alpha1
+#kind: IngressRoute
+#metadata:
+#  name: streaming-traefik-ingress
+#  namespace: jellyfin
+#spec:
+#  entryPoints:
+#  - websecure
+#  - web
+#  routes:
+#  - kind: Rule
+#    match: Host(`streaming.justsem.org`) || Host(`jellyfin.justsem.org`)
+#    middlewares:
+#    - name: security-headers
+#      namespace: jellyfin
+#    services:
+#    - kind: Service
+#      name: jellyfin
+#      namespace: jellyfin
+#      passHostHeader: true
+##      port: 8096
+#  tls:
+#    secretName: jellyfin-cert
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin-ingress
+  namespace: jellyfin
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: jellyfin-security-headers@kubernetescrd
+#    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+#    nginx.ingress.kubernetes.io/server-snippet: |
+#      client_max_body_size 20M;
+#      add_header X-Frame-Options "SAMEORIGIN";
+#      add_header X-XSS-Protection "1; mode=block";
+#      add_header X-Content-Type-Options "nosniff";
+spec:
+  tls:
+  - hosts:
+    - jellyfin.justsem.org
+    secretName: jellyfin-cert
+  rules:
+  - host: jellyfin.justsem.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jellyfin
+            port:
+              number: 8096

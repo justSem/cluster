@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flux-ingress
+  namespace: flux-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  tls:
+  - hosts:
+    - flux.d002.servers.justsem.org
+    secretName: flux-receiver-cert
+  rules:
+  - host: flux.d002.servers.justsem.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webhook-receiver
+            port:
+              number: 80

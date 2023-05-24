@@ -1,0 +1,16 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bazarr-cert
+  namespace: vpn
+  labels:
+    "use-http01-solver": "true"
+spec:
+  commonName: bazarr.justsem.org
+  secretName: bazarr-cert
+  dnsNames:
+    - bazarr.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

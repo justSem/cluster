@@ -1,0 +1,50 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+    name: le-hetzner
+spec:
+    acme:
+        email: cert@justsem.org
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+            name: le-hetzner-prod
+        solvers:
+            # An empty 'selector' means that this solver matches all domains
+            - selector: {}
+              dns01:
+                webhook:
+                    groupName: dns.hetzner.cloud
+                    solverName: hetzner
+                    config:
+                        APIKey: ENC[AES256_GCM,data:8tkYl87kqaug8KAneTXIzL6hj+At7NgRw7riU11AGQY=,iv:lbcrc7jdN3LOdCcVst1uU34b7+JNQDmoREp1TtHmQ7U=,tag:dqmOHr5NNq0A/IKBqoZM6Q==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-02-12T16:23:36Z"
+    mac: ENC[AES256_GCM,data:1TwUrtjasrVqXPoSEdxW2P0VwMb8sTIDOJk1cyMKBtyFb5i4diZlPrLfK46oDML/DQpD2/g2oN2ieRuywWp+qVVELqOPmll7OOZbSiK5fu6m6Dra4NwwBzmuGm0bE+/J/+iB45ozUDWt6XPpS6reiMb0jzWF4GA+hm66de227Hc=,iv:c0J+WtjuUmHTk4HVcEsj/tPW2gE50u0HZt/Q1WUnyiw=,tag:NKk+5tbFCyf1b2hEV/QgAA==,type:str]
+    pgp:
+        - created_at: "2023-02-12T16:23:36Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwdUmVO8UyRmAQ//cxuHe6bcW1EBWwvgDR+Oc7UycKpHRhLQx7otT5Fsgu45
+            UxwWcQXaESYJD7k/gckQCW6i+8qy55/P7GOjrf28Tfrj4C1hJueej402gkTEyazf
+            1CDvSRurMmCqjppQX7nmRbZuK+PHHh1fVRx9HjZHU9ixG4gyTGXmCj4U/gHiKieF
+            CF3ou6aGY9wvNbVrGd7/ssczRvewGHAR8X3FSemOaxO1/1/hMcYME5UXvJqp05Wo
+            1tomoxBw39FMK9DxB2Lp2/KS9nVBxolKvfXJc1G5xzfvVm7dlqCDdYaTnbb8QBTC
+            RR99eYDAp9jgfXjHumcFUMjjWaDNkwgGYwczyI1h/NGNH6UzlB6BwJ1WWzpBmEeO
+            84x3SHKrkjcqqy3GaGWOOB/iuph9ZEIDOF0550RYdyQ8QRYiI9oEUdACP1yJE2j5
+            yXbyM8oGgg1k3EXm3AqWPM8I1ceW4nNuKhryv2i6fkgfYTtyaB6LA4XAjag0UpZH
+            ItjznYLlnOJEKNiZsMBkOgcPijnkGguDDI52Q7mOpbLHzRR3bZLObd+ZNFKX01l6
+            lQvXwlRvDkNU7zZuGYsNnwcqEiJnmKPGAH3hIFbQ8QdTXOjIM6Coes/LBBbbK4m1
+            vdKL1cJqx5Jp+64ioa/gBerAxLB5MjEd5m2o85Fq7l06BiWQiJKzIMydrJoiwGvS
+            XgHlQFVo9FmexQHQWd/mj+TiEFmXGiFLlDCHYU+/CXuDjRSROZNUj46lYY62wo0T
+            fAxvtqmraG8qR2wAgmnoKgdLihtagXPkdIJm8a+aqUPLV/8qOAkthlSnER0NekA=
+            =vvnc
+            -----END PGP MESSAGE-----
+          fp: B194147D46676F527F2C1A33AC4C1FF17C9B79D9
+    encrypted_regex: ^(APIKey|stringData)$
+    version: 3.7.3

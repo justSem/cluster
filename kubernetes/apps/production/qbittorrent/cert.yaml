@@ -1,0 +1,17 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: qbit-cert
+  namespace: vpn
+  labels:
+    "use-http01-solver": "true"
+spec:
+  commonName: qbit.justsem.org
+  secretName: qbit-cert
+  dnsNames:
+    - qbit.justsem.org
+    - qbit-anime.justsem.org
+  issuerRef:
+    name: le-hetzner
+    kind: ClusterIssuer

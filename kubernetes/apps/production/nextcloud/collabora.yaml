@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nextcloud-collabora
+  namespace: nextcloud
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  # See https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml
+  values:
+    image:
+      repository: collabora/code
+      tag: 22.05.12.4.1
+    
+    env:
+      extra_params: --o:ssl.termination=true --o:ssl.enable=false
+    
+    autoscaling:
+      enabled: true
+      target:  # deploymentname
+      minReplicas:  1
+      maxReplicas:  3
+      targetCPUUtilizationPercentage:  80
+      targetMemoryUtilizationPercentage:  80
+  
+    service:
+      main:
+        ports:
+          http:
+            port: 9980

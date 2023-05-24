@@ -1,0 +1,58 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: themepark-auth
+  namespace: theme-park
+spec:
+  forwardAuth:
+    address: https://themepark.justsem.org/outpost.goauthentik.io/auth/traefik
+    authResponseHeaders:
+    - X-authentik-username
+    - X-authentik-groups
+    - X-authentik-email
+    - X-authentik-name
+    - X-authentik-uid
+    - X-authentik-jwt
+    - X-authentik-meta-jwks
+    - X-authentik-meta-outpost
+    - X-authentik-meta-provider
+    - X-authentik-meta-app
+    - X-authentik-meta-version
+    trustForwardHeader: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: themepark-traefik-ingress
+  namespace: theme-park
+spec:
+  entryPoints:
+    - websecure
+    - web
+  routes:
+    - match: Host(`themepark.justsem.org`)
+      kind: Rule
+      priority: 10
+      middlewares:
+#        - name: themepark-auth
+#          namespace: theme-park
+        - name: security-headers
+          namespace: theme-park
+#        - name: error-pages
+#          namespace: theme-park
+      services:
+        - kind: Service
+          name: theme-park
+          passHostHeader: true
+          namespace: theme-park
+          port: 8080
+    - match: Host(`themepark.justsem.org`) && PathPrefix(`/outpost.goauthentik.io/`)
+      kind: Rule
+      priority: 15
+      services:
+        - kind: Service
+          name: ak-outpost-theme-park
+          namespace: theme-park
+          port: 9000
+  tls:
+    secretName: themepark-cert

@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: whatsapp-bridge
+  namespace: matrix
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  values:
+    runtimeClassName: gvisor
+    image:
+      repository: dock.mau.dev/mautrix/whatsapp
+      tag: v0.8.3
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        accessMode: ReadWriteOnce
+        storageClass: openebs-hostpath
+        mountPath: "/data"
+        size: 1Gi
+    service:
+      main:
+        ports:
+          http:
+            port: 29319

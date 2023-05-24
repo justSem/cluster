@@ -1,0 +1,97 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: sonarr
+  namespace: vpn
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  values:
+    image:
+      repository: ghcr.io/onedr0p/sonarr
+      tag: 3.0.10.1567
+    imagePullSecrets:
+      - name: justsem-ghcr
+    env:
+      TZ: "Europe/Amsterdam"
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: openebs-hostpath
+      storage:
+        enabled: true
+        type: hostPath
+        mountPath: /media
+        hostPath: /opt/storage/streaming/jellyfin
+      coldstorage:
+        enabled: true
+        type: hostPath
+        mountPath: /old-media
+        hostPath: /opt/storage/cold-storage/tv
+      qbit:
+        enabled: true
+        type: hostPath
+        mountPath: /downloads/qbit
+        hostPath: /opt/storage/qbit
+      qbit-anime:
+        enabled: true
+        type: hostPath
+        mountPath: /downloads/qbit-anime
+        hostPath: /opt/storage/qbit-anime
+      sabnzbd:
+        enabled: true
+        type: hostPath
+        mountPath: /downloads/sabnzbd
+        hostPath: /opt/storage/sabnzbd
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+    probes:
+      liveness:
+        enabled: true
+        custom: true
+        spec:
+          exec:
+            command:
+              - /usr/bin/env
+              - bash
+              - -c
+              - curl --fail localhost:8989/api/v3/system/status?apiKey=`IFS=\> && while read -d \< E C; do if [[ $E = "ApiKey" ]]; then echo $C; fi; done < /config/config.xml`
+          failureThreshold: 5
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+    service:
+      main:
+        ports:
+          http:
+            port: 8989
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik
+          traefik.ingress.kubernetes.io/router.middlewares: vpn-sonarr-auth@kubernetescrd,vpn-security-headers@kubernetescrd
+        hosts:
+        - host: &host "sonarr.justsem.org"
+          paths:
+          - path: /
+            pathType: Prefix
+
+        tls:
+        - secretName: sonarr-cert
+          hosts:
+          - *host
+          

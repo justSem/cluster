@@ -1,0 +1,101 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-helm-charts
+        namespace: flux-system
+  # See https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml
+  values:
+    image:
+      repository: ghcr.io/home-assistant/home-assistant
+      tag: 2023.5.3@sha256:24ac7c2b44448cfd17fe02372b4a3ecbe1202302baa8c48252fb2b3b6b999a99
+
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: local-path
+        mountPath: /config
+        size: 1Gi
+        accessModes: 
+        - ReadWriteOnce
+        - ReadOnlyMany
+      localtime:
+        enabled: true
+        type: hostPath
+        mountPath: /etc/localtime
+        hostPath: /etc/localtime
+        accessModes:
+        - ReadOnlyOnce
+    mariadb:
+      enabled: false
+    postgresql:
+      enabled: true
+    influxdb:
+      enabled: false
+
+    env:
+      TZ: "Europe/Amsterdam"
+
+    probes:
+      #Circumvention - avoid restart
+      liveness:
+        enabled: false
+      readiness:
+        enabled: false
+      startup:
+        enabled: false
+
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "192.168.8.52"
+        publishNotReadyAddresses: true
+        ports:
+          http:
+            port: 8123
+          homematicproxy:
+            enabled: true
+            port: 2001
+            targetPort: 2001
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik
+        hosts:
+        - host: &host "hoas.internal.justsem.org"
+          paths:
+          - path: /
+            pathType: Prefix
+
+        tls:
+        - secretName: hoas-cert
+          hosts:
+          - *host
+
+
+    addons:
+      codeserver:
+        enabled: false
+        image:
+          repository: ghcr.io/coder/code-server
+          tag: 4.12.0@sha256:fb7c8905f51d49ef3363035201f2e4803dffe054f24de7d209c810bc88639d94
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        git:
+          # -- Existing secret containing SSH private key
+          # The chart expects it to be present under the `id_rsa` key.
+          deployKeySecret: git-ssh-keys
